@@ -1,0 +1,655 @@
+openapi: 3.0.0
+servers:
+  - url: 'https://{host}:{port}/{basepath}'
+    variables:
+      host:
+        default: https://apis.daznservices.com
+      port:
+        default: '443'
+      basepath:
+        default: tbc
+info:
+  version: "0.0.1-draft"
+  title: DAZN External Master Ad-Tag API
+  description: |
+    The DAZN Master Ad-Tag API presents requests that allow master ad-tag data for a given event scheduled on a DAZN region
+    to be retrieved for different playout types. In particular, for a live event ad tag data can be retrieved for
+    either a Live Backup (aka regional) playout or Live DAI playout.
+
+    The master ad-tag data can be requested in two formats: either as a json document that contains each component
+    element of the ad-tag or formed into a query string that can be appended to the ad manager endpoint to create
+    the full ad-request url.
+
+    For Live Events the caller may present the unique fixture UUID and a region identifier which can resolve to a given
+    event that has been scheduled on the platform. (In future, this API will allow a unique event id to be passed to
+    identify the event.)
+
+    For VoD event identification is TBD.
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+  '/masteradtagdata/livebackup':
+    get:
+      tags:
+        - master adtag data
+      summary: |
+        Get the data that is used in the masteradtag for a Live Backup stream
+      description: |
+        A  request that returns a single a JSON document that presents all the values that will be required
+         in a master ad-tag related to a given stream type, location and fixtureUUID.
+
+      parameters:
+        - name: location
+          in: query
+          description: |
+            The location - Region or country - that the master ad-tag is required for.
+          schema:
+            type: string
+          example: DACH
+          required: true
+        - name: fixtureUUID
+          in: query
+          description: |
+            The UUID of the MFL Fixture which identifies the event for which the master ad-tag is requested.
+          schema:
+            type: string
+            format: uuid
+          example: 2423hhduwyqutrqtywue
+          required: true
+        - name: platform
+          in: query
+          description: |
+            The platform that the requested event is for. (NB - this is a placeholder for future use and the
+            values here (apart from OTT) are speculative.
+          schema:
+            type: string
+            enum:
+              - OTT
+              - LINEAR
+              - OFFPLATFORM
+            default: OTT
+          example: OTT
+          required: false
+
+
+
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiveBackupMasterAdTagData'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '503':
+          $ref: '#/components/responses/Error503'
+        default:
+          $ref: '#/components/responses/Error'
+
+  '/masteradtagdata/livedai':
+    get:
+      tags:
+        - master adtag data
+      summary: |
+        Get the data that is used in the masteradtag for a Live DAI  stream
+      description: |
+        A  request that returns a single a JSON document that presents all the values that will be required
+         in a master adtag related to a given stream type, location and fixtureUUID.
+
+      parameters:
+        - name: location
+          in: query
+          description: |
+            The location - Region or country - that the master ad-tag is required for.
+          schema:
+            type: string
+          examples:
+            DACH:
+              value: DACH
+              description: The DACH region
+            IT:
+              value: IT
+              description: Italy Region
+          required: true
+        - name: fixtureUUID
+          in: query
+          description: |
+            The UUID of the MFL Fixture for which the master ad-tag is requested.
+          schema:
+            type: string
+            format: uuid
+          example: 2423hhduwyqutrqtywue
+          required: true
+        - name: platform
+          in: query
+          description: |
+            The platform that the requested event is for. (NB - this is a placeholder for future use and the
+            values here (apart from OTT) are speculative.
+          schema:
+            type: string
+            enum:
+              - OTT
+              - LINEAR
+              - OFFPLATFORM
+            default:
+          example: OTT
+          required: false
+
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiveDaiMasterAdTagData'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '503':
+          $ref: '#/components/responses/Error503'
+        default:
+          $ref: '#/components/responses/Error'
+
+  '/masteradtagdata/vod':
+    get:
+      tags:
+        - master adtag data
+      summary: >
+        Get the data that is used in the masteradtag for a vod content.
+        *NB The request parameters and
+        response described here are placeholders because the exact requirements are unknown*
+      description: |
+        A  request that returns a single a JSON document that presents all the values that will be required
+         in a master adtag related to a given stream type, location and fixtureUUID.
+
+      parameters:
+        - name: location
+          in: query
+          description: |
+            The location - Region or country - that the master ad-tag is required for.
+          schema:
+            type: string
+          example: DACH
+          required: true
+        - name: fixtureUUID
+          in: query
+          description: |
+            The UUID of the MFL Fixture for which the master ad-tag is requested.
+          schema:
+            type: string
+            format: uuid
+          example: 2423hhduwyqutrqtywue
+          required: true
+        - name: platform
+          in: query
+          description: |
+            The platform that the requested event is for. (NB - this is a placeholder for future use and the
+            values here (apart from OTT) are speculative.
+          schema:
+            type: string
+            enum:
+              - OTT
+              - LINEAR
+              - OFFPLATFORM
+            default:
+          example: OTT
+          required: false
+
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VodMasterAdTagData'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '503':
+          $ref: '#/components/responses/Error503'
+        default:
+          $ref: '#/components/responses/Error'
+
+  '/masteradtag/{type}':
+    get:
+      tags:
+        - master ad tag
+      summary: |
+        Get a master ad-tag query string
+      description: |
+        A  request that returns a single a JSON document with single key that references
+        the query string for a masteradtag request related to a given stream type, location and fixtureUUID.
+
+      parameters:
+        - name: type
+          in: path
+          description: |
+            The type of stream that the master ad tags is to be used fro
+          schema:
+            type: string
+            enum:
+              - livebackup
+              - livedai
+              - vod
+          example: livebackup
+          required: true
+        - name: location
+          in: query
+          description: |
+            The location - Region or country - that the master ad-tag is required for.
+          schema:
+            type: string
+          example: DACH
+          required: true
+        - name: fixtureUUID
+          in: query
+          description: |
+            The UUID of the MFL Fixture for which the master ad-tag is requested.
+          schema:
+            type: string
+            format: uuid
+          example: 2423hhduwyqutrqtywue
+          required: true
+
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  master-ad-tag:
+                    description: |
+                      The returned master ad tag query string
+
+                    type: string
+                    example: "env=vp&gdfp_req=1&output=vast&iu=/1234/video-demo&sz=400x300&unviewed_position_start=1&ciu_szs=728x90,300x250"
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '503':
+          $ref: '#/components/responses/Error503'
+        default:
+          $ref: '#/components/responses/Error'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      description: |
+        In order to access the API the caller must present a unique API Access Key provided by DAZN which will allow access to requests
+        permitted by for the given caller. This access key may be withdrawn and replaced with a new one, if the key is
+        compromised or for other technical reasons.
+
+        This API must be passed in the X-API-KEY header.
+      type: apiKey
+      in: header
+      name: X-API-KEY
+
+  schemas:
+    BaseMasterAdTagData:
+      type: object
+      properties:
+        description_url:
+          type: string
+          description: |
+            The description url
+          example: 'http://dazn.com/foo'
+        env:
+          type: string
+          description: |
+            The env
+          example: vp
+        gdfp_req:
+          type: string
+          description: |
+            The
+          example: 1
+        iu:
+          type: string
+          description: |
+            Related ad unit
+          example: '/DAZN-Network/DACH/Live_Backup/soccer/EPL'
+        sz:
+          type: string
+          description: |
+            The output
+          example: 4k
+        unviewed_position_start:
+          type: string
+          description: |
+            The unview position start
+          example: 1
+        url:
+          type: string
+          description: |
+             the url
+          example:
+            http://dazn.com
+        nofb:
+          type: string
+          description: |
+            nofb value
+          example: 1
+        npa:
+          type: string
+          description: |
+            nap value
+          example: 1
+        excl_cat:
+          type: array
+          description: |
+            categories to exclude
+          example: ["Gambling", "Alcohol"]
+        pmad:
+          type: string
+          description: |
+            pmad
+          example: 0
+        pmnd:
+          type: string
+          description: |
+            pmnd
+          example: 0
+        vad_type:
+          type: string
+          description: |
+            video ad type
+          example: linear
+        vpos :
+          type: string
+          description: |
+            video position
+          example: preroll
+
+    LiveBackupMasterAdTagData:
+      allOf:
+        - $ref: '#/components/schemas/BaseMasterAdTagData'
+        - type: object
+          properties:
+            cust_params:
+              $ref: '#/components/schemas/LiveBackupCustomValues'
+            output:
+              type: string
+              description: |
+                The output
+              example: vast4
+            hl:
+              type: string
+              description: |
+                ad language
+              example: EN
+
+
+    LiveDaiMasterAdTagData:
+      allOf:
+        - $ref: '#/components/schemas/BaseMasterAdTagData'
+        - type: object
+          properties:
+            cust_params:
+              $ref: '#/components/schemas/LiveDaiCustomValues'
+
+    VodMasterAdTagData:
+      allOf:
+        - $ref: '#/components/schemas/BaseMasterAdTagData'
+        - type: object
+          properties:
+            cust_params:
+              $ref: '#/components/schemas/LiveVodCustomValues'
+
+    BaseCustomValues:
+      type: object
+      properties:
+        AdvTV_Sport:
+          type: string
+          format: uuid
+          description: |
+             UUID of the MFL sport
+          example: iwi845820oeier959
+        AdvTV_Competition:
+          type: string
+          format: uuid
+          description: |
+             UUID of the MFL competition
+          example: iwi84dfdfdfeier959
+        AdvTV_Season:
+          type: string
+          format: uuid
+          description: |
+            UUID of the MLF tournament calendar
+          example: 34299203uiogerout9348
+        AdvTV_Stage:
+          type: string
+          format: uuid
+          description: |
+            UUID of the MLF calendar stage
+          example: 34299203uiogerout9348
+        AdvTV_Competitors:
+          type: array
+          format: uuid
+          description: |
+            List of MFL contestant UUIDs
+          example: ["34299203uiogerout9348", "dfsfsgdfgdsfg"]
+        AdvTV_MFL_ID:
+          type: string
+          format: uuid
+          description: |
+            MFL Fixture UUID
+          example: 34299203uiogerout9348
+        AdvTV_BroadcastCountry:
+          type: array
+          format: iso-country-code
+          description: |
+            List of iso country code where the stream will be broadcast
+          example: ["AT", "DE"]
+        AdvTV_ExcludeCategory:
+          type: array
+          description: |
+            categories to exclude
+          example: ["Gambling", "Alcohol"]
+        AdvTV_LiveType:
+          type: string
+          enum:
+            - Live_Broadcast
+            - Delayed_Broadcast
+          description: |
+            The type of the live event
+          example: Live_Broadcast
+        AdvTV_BroadcastType:
+          type: string
+          enum:
+            - World_Feed
+            - Host_Feed
+          description: |
+            Broadcast type
+          example: World_Feed
+        AdvTV_RightsHolder:
+          type: string
+          format: uuid
+          description: |
+            UUID of the Rights holder
+          example: 123567009
+        AdvTV_BroadcastTier:
+          type: string
+          enum:
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+          description: |
+            Broadcast Tier
+          example: 5
+
+    LiveBackupCustomValues:
+      allOf:
+        - $ref: '#/components/schemas/BaseCustomValues'
+
+    LiveDaiCustomValues:
+      allOf:
+        - $ref: '#/components/schemas/BaseCustomValues'
+
+    LiveVodCustomValues:
+      allOf:
+        - $ref: '#/components/schemas/BaseCustomValues'
+
+    BaseErrorProperties:
+      type:  object
+      properties:
+        message:
+          type: string
+          description: >-
+            A message that describes the error
+          example: The request is not valid
+        token:
+          type: string
+          description: >-
+            Unique id to allow the log report for this error to located
+          example: 7463ye636363
+
+  #
+  # Note where responses share common response headers - like X-Status-Code here - there is no way of avoiding repitition
+  # in openapi (a little crap then)
+  #
+  responses:
+    Error:
+      description: Undocumented error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: >-
+                  Error
+
+    Error400:
+      description: Error returned when the client request is not in a valid format or contains invalid data
+      headers:
+        X-Status-Code:
+          description: >-
+            in case of error containing error code (useful for integration)
+            tests to easily retrieve error code)
+          schema:
+            type: integer
+            format: int32
+      content:
+        application/json:
+          schema:
+            required: [code, message, token]
+            allOf:
+              - $ref: '#/components/schemas/BaseErrorProperties'
+              - type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    description: |
+                      * 40050: The request contains an unknown query parameter
+                      * 40051: No value was passed for a mandatory field
+                      * 40052: Value for a field was passed, but it was not a valid value: see documentation
+                    enum:
+                      - 40050
+                      - 40051
+                      - 40052
+                    example: 40051
+
+                  fieldName:
+                    type: string
+                    description: Contains the name of the field related to the error, if any
+                    example: type
+
+
+    Error403:
+      description: Forbidden Error - the caller is not permissioned for this request
+      headers:
+        X-Status-Code:
+          description: >-
+            in case of error containing error code (useful for integration
+            tests to easily retrieve error code)
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            required: [code, message, token]
+            allOf:
+              - $ref: '#/components/schemas/BaseErrorProperties'
+              - type: object
+                properties:
+                  code:
+                    type: number
+                    description: |
+                      * 40301: The calling client does not have an allowed IP address
+                    enum:
+                      - 40301
+
+    Error404:
+      description: The request resource was not found
+      headers:
+        X-Status-Code:
+          description: >-
+            in case of error containing error code (useful for integration
+            tests to easily retrieve error code)
+          schema:
+            type: number
+      content:
+        application/json:
+          schema:
+            required: [code, message, token]
+            allOf:
+              - $ref: '#/components/schemas/BaseErrorProperties'
+              - type: object
+                properties:
+                  code:
+                    type: number
+                    description: |
+                      * 40451: An MLF Fixture with the presented UUID does not exist
+                      * 40452: The location cannot be resovled to a single DAZN region
+                      * 40453: The the value in the type parameter is not valid.
+                    enum:
+                      - 40451
+                      - 40452
+                      - 40453
+
+
+    Error503:
+      description: Service Unavailable
+      headers:
+        X-Status-Code:
+          description: >-
+            in case of error containing error code (useful for integration
+            tests to easily retrieve error code)
+          schema:
+            type: number
+      content:
+        application/json:
+          schema:
+            required: [code, message, token]
+            allOf:
+              - $ref: '#/components/schemas/BaseErrorProperties'
+              - type: object
+                properties:
+                  code:
+                    type: number
+                    description: |
+                      * 50351: The request failed because a dependent API could not be accessed.
+                    enum:
+                      - 50351
